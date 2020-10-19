@@ -20,17 +20,18 @@ class Graph:
         """
         with open(file_path, 'r') as f:
             total_vertices = int(f.readline())
-            graph = [[] for _ in range(total_vertices)]
+            graph = [[] for _ in range(total_vertices+1)]
             
             for line in f:
                 vertices = line.split()
                 first_vertex = int(vertices[0])
                 second_vertex = int(vertices[-1])
+                # print(second_vertex)
                 
-                edges = [second_vertex]
+                #if first_vertex != []:
                 graph[first_vertex].append(second_vertex)
 
-                egdes = [first_vertex]
+                # if second_vertex != []:
                 graph[second_vertex].append(first_vertex)
 
         return graph
@@ -82,6 +83,7 @@ class Graph:
         print(coloring)
         return coloring
         """
+
         for i in range(self.n_nodes):
                 if coloring[i] == -1: # if start is uncolored
                     coloring[i] = 0 # init to BLACK
@@ -99,17 +101,16 @@ class Graph:
                                         coloring[connected] = 1
                                     else:
                                         coloring[connected] = 0
-                                    queue.append(connected)
+        
+        coloring.pop(0) # ignores node 0 
         print(coloring)
         return coloring        
-
-
 
 def main():
     #Main function, you can edit as needed
     #Extra import may also be made locally in this function
 
-   graph = Graph('data/largegraph1')
+   graph = Graph('../data/smallgraph')
    # graph.print_graph()
    colors = graph.check_2colorable()
 
