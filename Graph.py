@@ -38,54 +38,54 @@ class Graph:
         for i in range(self.n_nodes):
                 print(i, self.graph_repr[i])
 
-    """def traceback_parents(self, path, node):
-        curr = node
-        adjacent_nodes = []
-        print(curr)
-
-        while(curr > 0):
-            adjacent_nodes.append(curr)
-            curr = path[curr]"""
-    def print_odd_cycle(self, parent, src, dest):
-        """curr = src
+    def print_odd_cycle(self, parent, initial, final):
         odd_cycle = []
-        adjacent = False
-
-        while(curr != None):
-            print(curr)
-            #odd_cycle.append(curr+1)
-            if(dest == curr):
-                adjacent = True
-                break
-            curr = parents[curr]
-
-        if(adjacent): return
-
-        curr = dest
-        while(parents[curr] != None):
-            print(curr)
-            #odd_cycle.append(curr+1)
-            curr = parents[curr]
-
-        # print(odd_cycle)
-        return odd_cycle"""
-
-        """while(curr != None):
-            odd_cycle.append(curr+1)
-            curr = parents[curr]
-            for neighbor in self.graph_repr[curr]:
-                if (neighbor+1) in odd_cycle:
-                    return odd_cycle"""
-            
-        # print(odd_cycle)
-        odd_cycle = []
-        odd_cycle.append(src+1)
-        curr = dest
-        while(curr!=src and parent[curr]!=None):
+        curr = initial
+        
+        while(curr != final and parent[curr] != None):
             odd_cycle.append(curr+1)
             curr = parent[curr]
-        # odd_cycle.append(src+1)
+
+        odd_cycle.append(final+1)
+        
+        #print(odd_cycle)
         return odd_cycle
+
+    def dfs_util(self, node, coloring, parent):
+        visited = [10]*(self.n_nodes) # track if a node has been undiscovered, discovered, completed
+                                         # undiscovered = WHITE = 10
+                                         # discovered = GREY = 11
+                                         # completed = BLACK = 12
+        stack = [node]
+        coloring[node] = 0 
+        visited[node] = 10 # init to WHITE
+
+        while stack:
+            src = stack.pop()
+
+            for dest in reversed(self.graph_repr[src]):
+                #print("src is " + str(coloring[src]) + " and dest is" + str(coloring[dest])) 
+                # print(dest)
+                if visited[dest] == 10 or visited[dest] == 11:
+                    stack.append(dest)
+                    
+                    if coloring[src] == 0:
+                        coloring[dest] = 1
+                    else:
+                        coloring[dest] = 0
+
+                    parent[dest] = src
+                    visited[dest] = 11
+                
+
+                elif coloring[src] == coloring[dest]:
+                    #print("src is" + str(src))
+                        return False, self.print_odd_cycle(parent, dest, src)
+
+            visited[src] = 12
+
+        return True, None
+
 
     def check_2colorable(self):
         """Determine whether or not the graph is 2-colorable and return colors.
@@ -103,56 +103,18 @@ class Graph:
         # initializes coloring adjacent list with all -1s (uncolored)
         coloring = [-1]*(self.n_nodes)
         parent = [None]*(self.n_nodes)
-
-        for src in range(self.n_nodes):
-            if coloring[src] != -1: # skip node if node is already colored
-                continue
-
-            stack = [src]
-            coloring[src] = 0 # init to BLACK
-
-            while stack:
-                src = stack.pop()
-
-                for dest in self.graph_repr[src]:
-                    if coloring[dest] != -1:
-                        if coloring[dest] == coloring[src]:
-                            odd_cycle = self.print_odd_cycle(parent, src, dest)
-                            # print("[]")
-                            print(False, odd_cycle)
-                            return [False, odd_cycle]
-                    else: 
-                        parent[dest] = src
-                        stack.append(dest)
-                        if coloring[src] == 0:
-                            coloring[dest] = 1
-                        else:
-                            coloring[dest] = 0
-
-        # print([True, coloring])
-        return [True, coloring]
-
-        """
+        bipartite = None
         for i in range(self.n_nodes):
-                if coloring[i] == -1: # if start is uncolored
-                    coloring[i] = 0 # init to BLACK
-                    queue = []
-                    queue.append(i)
-                    while queue:
-                        start = queue.pop()
-                        for connected in self.graph_repr[start]:
-                                if coloring[connected] != -1:
-                                    if coloring[connected] == coloring[start]:
-                                        print("[]")
-                                        return [False, []]
-                                else:
-                                    if coloring[start] == 0:
-                                        coloring[connected] = 1
-                                    else:
-                                        coloring[connected] = 0
-        
+            if coloring[i] == -1:
+                # print(i)
+                bipartite, output_list = self.dfs_util(i, coloring, parent)
+            if bipartite == False:
+                print("false")
+                print(output_list)
+                return False, output_list
+
         print([True, coloring])
-        return [True, coloring]"""      
+        return True, coloring
 
 def main():
     #Main function, you can edit as needed
